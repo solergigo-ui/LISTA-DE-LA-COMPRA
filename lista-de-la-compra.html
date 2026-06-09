@@ -1,0 +1,458 @@
+<!-- Lista de la compra — app con listas personales y compartidas -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper:#F6F3EC; --paper-2:#FBF9F3; --card:#FFFFFF;
+    --ink:#23271F; --ink-soft:#4A5044; --mute:#9AA295; --line:#E6E1D2;
+    --sprout:#3F7D4E; --sprout-dark:#2C5E39; --sprout-tint:#E9F1EA;
+    --citrus:#E2922B; --citrus-tint:#FBEFD9;
+    --tomato:#C44E3A; --tomato-tint:#F7E5E0;
+    --share:#2F7E8C; --share-dark:#22606C; --share-tint:#E2EFF1;
+    --shadow:0 1px 2px rgba(35,39,31,.05), 0 8px 24px rgba(35,39,31,.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.45}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+  input{font-family:inherit}
+  ::selection{background:var(--sprout);color:#fff}
+  .wrap{max-width:680px;margin:0 auto;padding:28px 20px 96px}
+
+  .top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:26px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .basket{width:42px;height:42px;flex:none;border-radius:12px;background:var(--sprout);display:grid;place-items:center;box-shadow:var(--shadow)}
+  .basket svg{width:24px;height:24px}
+  .title h1{font-family:'Fraunces',serif;font-weight:600;font-size:27px;letter-spacing:-.01em;line-height:1}
+  .title p{font-size:13px;color:var(--mute);margin-top:3px}
+  .btn-new{display:inline-flex;align-items:center;gap:7px;background:var(--ink);color:var(--paper-2);padding:11px 16px;border-radius:11px;font-weight:600;font-size:14px;transition:transform .12s ease, background .2s ease;white-space:nowrap}
+  .btn-new:hover{background:var(--sprout-dark)}
+  .btn-new:active{transform:scale(.97)}
+  .btn-new svg{width:16px;height:16px}
+
+  .section-label{font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin:18px 2px 12px;display:flex;align-items:center;gap:8px}
+  .section-label:first-of-type{margin-top:4px}
+  .section-label .dot{width:7px;height:7px;border-radius:50%}
+  .cards{display:flex;flex-direction:column;gap:14px}
+
+  .card{position:relative;background:var(--card);border-radius:14px;padding:18px 18px 16px;box-shadow:var(--shadow);cursor:pointer;border:1px solid var(--line);transition:transform .14s ease, box-shadow .14s ease;text-align:left;width:100%}
+  .card::before{content:"";position:absolute;left:14px;right:14px;top:-1px;height:6px;background-image:radial-gradient(circle at center, var(--paper) 3px, transparent 3.4px);background-size:11px 6px;background-repeat:repeat-x;background-position:center top}
+  .card.shared{border-color:#D5E5E8}
+  .card:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(35,39,31,.06),0 14px 30px rgba(35,39,31,.1)}
+  .card:active{transform:translateY(0)}
+  .card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .card-name{font-family:'Fraunces',serif;font-weight:600;font-size:19px;line-height:1.15}
+  .chips{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:none}
+  .date-chip{display:inline-flex;align-items:center;gap:6px;background:var(--citrus-tint);color:#A7651A;font-size:12px;font-weight:600;padding:5px 10px;border-radius:999px}
+  .date-chip svg{width:13px;height:13px}
+  .share-badge{display:inline-flex;align-items:center;gap:5px;background:var(--share-tint);color:var(--share-dark);font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px}
+  .share-badge svg{width:12px;height:12px}
+  .card-meta{display:flex;align-items:center;gap:10px;margin-top:14px}
+  .progress{flex:1;height:7px;background:var(--line);border-radius:999px;overflow:hidden}
+  .progress span{display:block;height:100%;background:var(--sprout);border-radius:999px;transition:width .35s ease}
+  .count{font-size:12.5px;color:var(--ink-soft);font-weight:500;white-space:nowrap}
+  .done-tag{color:var(--sprout);font-weight:700}
+
+  .empty{text-align:center;padding:54px 20px;border:1.5px dashed var(--line);border-radius:16px;background:var(--paper-2)}
+  .empty .ic{font-size:34px;margin-bottom:10px}
+  .empty h3{font-family:'Fraunces',serif;font-weight:600;font-size:19px;margin-bottom:6px}
+  .empty p{color:var(--mute);font-size:14px;max-width:300px;margin:0 auto}
+
+  .back{display:inline-flex;align-items:center;gap:6px;color:var(--ink-soft);font-weight:600;font-size:13.5px;padding:8px 0;margin-bottom:8px}
+  .back svg{width:16px;height:16px}
+  .back:hover{color:var(--ink)}
+  .detail-head{margin-bottom:18px}
+  .detail-name{font-family:'Fraunces',serif;font-weight:600;font-size:30px;letter-spacing:-.01em;line-height:1.1;width:100%;background:transparent;border:none;color:var(--ink);border-bottom:2px solid transparent;transition:border-color .2s;padding-bottom:2px}
+  .detail-name:focus{outline:none;border-bottom-color:var(--sprout)}
+  .detail-sub{display:flex;align-items:center;gap:12px;margin-top:10px;flex-wrap:wrap}
+  .date-input{display:inline-flex;align-items:center;gap:7px;color:var(--ink-soft);font-size:13.5px;font-weight:500;background:var(--card);border:1px solid var(--line);border-radius:9px;padding:7px 11px}
+  .date-input svg{width:15px;height:15px;color:var(--citrus)}
+  .date-input input{border:none;background:transparent;color:var(--ink-soft);font-weight:500;font-size:13.5px}
+  .date-input input:focus{outline:none}
+  .summary{font-size:13.5px;color:var(--mute);font-weight:500}
+
+  .toolbar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+  .tool{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;padding:9px 13px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);transition:.15s}
+  .tool svg{width:15px;height:15px}
+  .tool:hover{background:#fff;color:var(--ink)}
+  .tool.on{background:var(--share);color:#fff;border-color:var(--share)}
+  .tool.on:hover{background:var(--share-dark);color:#fff}
+
+  .share-note{display:flex;gap:9px;align-items:flex-start;background:var(--share-tint);border:1px solid #CFE3E6;color:var(--share-dark);font-size:12.5px;border-radius:11px;padding:11px 13px;margin-bottom:16px;line-height:1.4}
+  .share-note svg{width:16px;height:16px;flex:none;margin-top:1px}
+
+  .add-row{display:flex;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:8px;margin-bottom:18px;box-shadow:var(--shadow)}
+  .add-row .qty{width:64px;flex:none}
+  .add-row input{border:none;background:transparent;font-size:15px;color:var(--ink);padding:9px 10px;width:100%;border-radius:9px}
+  .add-row input::placeholder{color:var(--mute)}
+  .add-row input:focus{outline:none;background:var(--paper)}
+  .add-btn{flex:none;width:42px;border-radius:9px;background:var(--sprout);color:#fff;display:grid;place-items:center;transition:background .2s,transform .1s}
+  .add-btn:hover{background:var(--sprout-dark)}
+  .add-btn:active{transform:scale(.94)}
+  .add-btn svg{width:20px;height:20px}
+
+  .items{display:flex;flex-direction:column;gap:2px}
+  .item{display:flex;align-items:center;gap:13px;padding:13px 8px;border-bottom:1px solid var(--line);transition:opacity .25s}
+  .item:last-child{border-bottom:none}
+  .check{width:23px;height:23px;flex:none;border-radius:7px;border:2px solid var(--line);display:grid;place-items:center;transition:all .18s ease;background:var(--card)}
+  .check svg{width:14px;height:14px;color:#fff;opacity:0;transform:scale(.4);transition:all .18s ease}
+  .item.done .check{background:var(--sprout);border-color:var(--sprout)}
+  .item.done .check svg{opacity:1;transform:scale(1)}
+  .item-body{flex:1;min-width:0}
+  .item-name{font-size:15px;color:var(--ink);position:relative;display:inline;transition:color .2s}
+  .item-name::after{content:"";position:absolute;left:0;top:52%;height:1.5px;width:0;background:var(--mute);transition:width .28s ease}
+  .item.done .item-name{color:var(--mute)}
+  .item.done .item-name::after{width:100%}
+  .item-qty{font-size:12.5px;color:var(--citrus);font-weight:600;margin-left:9px;background:var(--citrus-tint);padding:2px 7px;border-radius:6px;display:inline-block}
+  .item.done .item-qty{color:var(--mute);background:var(--line)}
+  .del{flex:none;width:30px;height:30px;border-radius:8px;color:var(--mute);display:grid;place-items:center;opacity:0;transition:all .15s}
+  .item:hover .del{opacity:1}
+  .del:hover{background:var(--tomato-tint);color:var(--tomato)}
+  .del svg{width:16px;height:16px}
+
+  .list-foot{display:flex;justify-content:space-between;align-items:center;margin-top:22px;padding-top:8px}
+  .clear-done{font-size:13px;color:var(--mute);font-weight:600}
+  .clear-done:hover{color:var(--tomato)}
+  .delete-list{font-size:13px;color:var(--tomato);font-weight:600;display:inline-flex;align-items:center;gap:6px}
+  .delete-list svg{width:14px;height:14px}
+  .delete-list:hover{text-decoration:underline}
+
+  .overlay{position:fixed;inset:0;background:rgba(35,39,31,.4);backdrop-filter:blur(3px);display:grid;place-items:center;padding:20px;z-index:50;opacity:0;pointer-events:none;transition:opacity .2s}
+  .overlay.open{opacity:1;pointer-events:auto}
+  .modal{background:var(--paper-2);border-radius:18px;padding:26px 24px 22px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(35,39,31,.3);transform:translateY(12px) scale(.98);transition:transform .2s}
+  .overlay.open .modal{transform:translateY(0) scale(1)}
+  .modal h2{font-family:'Fraunces',serif;font-weight:600;font-size:21px;margin-bottom:4px}
+  .modal .hint{font-size:13px;color:var(--mute);margin-bottom:18px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:7px}
+  .field input[type=text],.field input[type=date]{width:100%;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:11px 13px;font-size:15px;color:var(--ink)}
+  .field input:focus{outline:none;border-color:var(--sprout);box-shadow:0 0 0 3px var(--sprout-tint)}
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 14px;cursor:pointer;margin-bottom:4px}
+  .toggle-row .tl{display:flex;align-items:center;gap:11px}
+  .toggle-row .tl svg{width:18px;height:18px;color:var(--share)}
+  .toggle-row .tt{font-weight:600;font-size:14px}
+  .toggle-row .ts{font-size:12px;color:var(--mute)}
+  .switch{width:42px;height:24px;border-radius:999px;background:var(--line);position:relative;flex:none;transition:background .2s}
+  .switch::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s}
+  .switch.on{background:var(--share)}
+  .switch.on::after{transform:translateX(18px)}
+  .modal-actions{display:flex;gap:10px;margin-top:22px}
+  .modal-actions button{flex:1;padding:12px;border-radius:11px;font-weight:600;font-size:14.5px;transition:.15s}
+  .btn-ghost{background:var(--card);color:var(--ink-soft);border:1px solid var(--line)}
+  .btn-ghost:hover{background:#fff}
+  .btn-go{background:var(--sprout);color:#fff}
+  .btn-go:hover{background:var(--sprout-dark)}
+  .share-text{width:100%;min-height:160px;border:1px solid var(--line);border-radius:11px;padding:13px;font-family:'Inter';font-size:14px;color:var(--ink);background:var(--card);resize:vertical;line-height:1.6}
+  .share-text:focus{outline:none;border-color:var(--share)}
+  .copy-ok{font-size:12.5px;color:var(--sprout);font-weight:600;text-align:center;height:16px;margin-top:8px}
+
+  .loading{text-align:center;padding:60px 0;color:var(--mute);font-size:14px}
+  @media (max-width:480px){
+    .wrap{padding:20px 15px 90px}
+    .title h1{font-size:23px}
+    .detail-name{font-size:25px}
+    .del{opacity:1}
+  }
+</style>
+
+<div class="wrap"><div id="app"><div class="loading">Cargando tus listas…</div></div></div>
+
+<!-- Modal nueva lista -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2>Nueva lista</h2>
+    <p class="hint">Ponle un nombre, elige la fecha y decide si quieres compartirla.</p>
+    <div class="field"><label for="m-name">Nombre</label><input id="m-name" type="text" placeholder="p. ej. Compra semanal" autocomplete="off" /></div>
+    <div class="field"><label for="m-date">Fecha</label><input id="m-date" type="date" /></div>
+    <div class="toggle-row" id="m-share-row">
+      <div class="tl">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.2"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17.5" cy="8.5" r="2.6"/><path d="M16 14.5a5.5 5.5 0 0 1 5.5 5.5"/></svg>
+        <div><div class="tt">Compartir lista</div><div class="ts">Visible y editable por todos</div></div>
+      </div>
+      <div class="switch" id="m-switch"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="m-cancel">Cancelar</button>
+      <button class="btn-go" id="m-create">Crear lista</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal compartir como texto -->
+<div class="overlay" id="share-overlay">
+  <div class="modal">
+    <h2>Compartir como texto</h2>
+    <p class="hint">Copia y pega en WhatsApp, notas o donde quieras.</p>
+    <textarea class="share-text" id="share-text" readonly></textarea>
+    <div class="copy-ok" id="copy-ok"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="s-close">Cerrar</button>
+      <button class="btn-go" id="s-copy">Copiar texto</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const I = {
+  basket:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11l1.5 9.5a1 1 0 0 0 1 .5h9a1 1 0 0 0 1-.5L19 11"/><path d="M3 11h18"/><path d="M8 11 10 4"/><path d="M16 11 14 4"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>',
+  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>',
+  people:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.2"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17.5" cy="8.5" r="2.6"/><path d="M16 14.5a5.5 5.5 0 0 1 5.5 5.5"/></svg>',
+  send:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>',
+  refresh:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>',
+  info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v5M12 7.5h.01"/></svg>'
+};
+
+/* ---------- Persistencia ---------- */
+const PKEY='shopping-data';                 // personales {lists:[...]}  (privado)
+const SIDX='shared-index';                  // índice compartido {lists:[meta]}
+const slKey = id => 'shared-list-'+id;      // cada lista compartida
+let state = { lists:[], currentId:null };
+const uid = () => Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+
+async function savePersonal(){
+  const lists = state.lists.filter(l=>!l.shared).map(({id,name,date,items,createdAt})=>({id,name,date,items,createdAt}));
+  try{ await window.storage.set(PKEY, JSON.stringify({lists}), false); }catch(e){ console.error(e); }
+}
+async function saveSharedList(l){
+  try{ await window.storage.set(slKey(l.id), JSON.stringify({id:l.id,name:l.name,date:l.date,items:l.items,createdAt:l.createdAt}), true); }catch(e){ console.error(e); }
+}
+async function saveSharedIndex(){
+  const meta = state.lists.filter(l=>l.shared).map(({id,name,date,createdAt})=>({id,name,date,createdAt}));
+  try{ await window.storage.set(SIDX, JSON.stringify({lists:meta}), true); }catch(e){ console.error(e); }
+}
+async function removeSharedKey(id){ try{ await window.storage.delete(slKey(id), true); }catch(e){} }
+
+async function persist(l){
+  if(l && l.shared){ await saveSharedList(l); await saveSharedIndex(); }
+  else { await savePersonal(); }
+}
+
+async function loadShared(){
+  let idx=[];
+  try{ const r=await window.storage.get(SIDX); if(r&&r.value) idx=JSON.parse(r.value).lists||[]; }catch(e){}
+  const loaded=[];
+  for(const m of idx){
+    try{ const r=await window.storage.get(slKey(m.id)); if(r&&r.value){ const l=JSON.parse(r.value); l.shared=true; loaded.push(l); continue; } }catch(e){}
+    loaded.push({id:m.id,name:m.name,date:m.date,createdAt:m.createdAt,items:[],shared:true});
+  }
+  state.lists = state.lists.filter(l=>!l.shared).concat(loaded);
+}
+
+async function load(){
+  try{ const r=await window.storage.get(PKEY); if(r&&r.value){ (JSON.parse(r.value).lists||[]).forEach(l=>{ l.shared=false; state.lists.push(l); }); } }catch(e){}
+  await loadShared();
+  render();
+}
+
+async function setShared(l, shared){
+  if(shared){ l.shared=true; await savePersonal(); await saveSharedList(l); await saveSharedIndex(); }
+  else { l.shared=false; await removeSharedKey(l.id); await saveSharedIndex(); await savePersonal(); }
+}
+async function deleteList(l){
+  state.lists = state.lists.filter(x=>x.id!==l.id);
+  if(l.shared){ await removeSharedKey(l.id); await saveSharedIndex(); }
+  else { await savePersonal(); }
+}
+
+/* ---------- Utilidades ---------- */
+const esc = s => (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function fmtDate(iso){
+  if(!iso) return '';
+  const [y,m,d]=iso.split('-').map(Number); const dt=new Date(y,m-1,d);
+  const t=new Date(); t.setHours(0,0,0,0);
+  const diff=Math.round((dt-t)/86400000);
+  if(diff===0) return 'Hoy'; if(diff===1) return 'Mañana'; if(diff===-1) return 'Ayer';
+  return dt.toLocaleDateString('es-ES',{day:'numeric',month:'short'});
+}
+const todayISO = () => { const t=new Date(); t.setMinutes(t.getMinutes()-t.getTimezoneOffset()); return t.toISOString().slice(0,10); };
+const isTyping = () => { const a=document.activeElement; return a && (a.tagName==='INPUT'||a.tagName==='TEXTAREA'); };
+
+/* ---------- Render ---------- */
+const app = document.getElementById('app');
+function render(){ state.currentId ? renderDetail() : renderHome(); }
+
+function cardHtml(l){
+  const total=l.items.length, done=l.items.filter(i=>i.checked).length;
+  const pct = total? Math.round(done/total*100):0; const complete= total>0&&done===total;
+  return `<button class="card ${l.shared?'shared':''}" data-open="${l.id}">
+    <div class="card-head">
+      <div class="card-name">${esc(l.name)}</div>
+      <div class="chips">
+        <span class="date-chip">${I.cal}${fmtDate(l.date)}</span>
+        ${l.shared?`<span class="share-badge">${I.people}Compartida</span>`:''}
+      </div>
+    </div>
+    <div class="card-meta">
+      <div class="progress"><span style="width:${pct}%"></span></div>
+      <div class="count">${ total===0?'Vacía':(complete?'<span class="done-tag">¡Completa!</span>':done+' / '+total) }</div>
+    </div></button>`;
+}
+
+function renderHome(){
+  const sortFn = (a,b)=> (b.date||'').localeCompare(a.date||'')||b.createdAt-a.createdAt;
+  const shared = state.lists.filter(l=>l.shared).sort(sortFn);
+  const mine = state.lists.filter(l=>!l.shared).sort(sortFn);
+
+  let body='';
+  if(shared.length===0 && mine.length===0){
+    body=`<div class="empty"><div class="ic">🧺</div><h3>Todavía no hay listas</h3><p>Crea tu primera lista. Puedes guardarla solo para ti o compartirla con quien tenga esta app.</p></div>`;
+  }else{
+    if(shared.length){
+      body+=`<div class="section-label"><span class="dot" style="background:var(--share)"></span>Compartidas · ${shared.length}</div><div class="cards">${shared.map(cardHtml).join('')}</div>`;
+    }
+    if(mine.length){
+      body+=`<div class="section-label"><span class="dot" style="background:var(--sprout)"></span>Solo para ti · ${mine.length}</div><div class="cards">${mine.map(cardHtml).join('')}</div>`;
+    }
+  }
+
+  app.innerHTML=`
+    <div class="top">
+      <div class="brand"><div class="basket">${I.basket}</div>
+        <div class="title"><h1>La lista</h1><p>Tu compra, guardada y compartible</p></div></div>
+      <button class="btn-new" id="open-modal">${I.plus} Nueva lista</button>
+    </div>${body}`;
+  document.getElementById('open-modal').onclick=openModal;
+  app.querySelectorAll('[data-open]').forEach(b=> b.onclick=()=>{ state.currentId=b.dataset.open; render(); });
+}
+
+function summaryText(l){ const d=l.items.filter(i=>i.checked).length; return l.items.length? d+' de '+l.items.length+' comprados':'Sin productos'; }
+
+function renderDetail(){
+  const l = state.lists.find(x=>x.id===state.currentId);
+  if(!l){ state.currentId=null; return render(); }
+
+  const itemsHtml = l.items.length ? l.items.map(it=>`
+    <div class="item ${it.checked?'done':''}" data-id="${it.id}">
+      <button class="check" data-toggle="${it.id}">${I.check}</button>
+      <div class="item-body"><span class="item-name">${esc(it.name)}</span>${it.qty?`<span class="item-qty">${esc(it.qty)}</span>`:''}</div>
+      <button class="del" data-del="${it.id}" title="Quitar">${I.trash}</button>
+    </div>`).join('')
+    : `<div class="empty" style="padding:38px 20px"><div class="ic">📝</div><h3>Lista vacía</h3><p>Añade el primer producto abajo. Pulsa Intro para añadir rápido.</p></div>`;
+
+  app.innerHTML=`
+    <button class="back" id="back">${I.back} Todas las listas</button>
+    <div class="detail-head">
+      <input class="detail-name" id="dname" value="${esc(l.name)}" />
+      <div class="detail-sub">
+        <span class="date-input">${I.cal}<input type="date" id="ddate" value="${l.date||''}"></span>
+        <span class="summary" id="dsum">${summaryText(l)}</span>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <button class="tool ${l.shared?'on':''}" id="sharetoggle">${I.people}${l.shared?'Compartida':'Compartir'}</button>
+      <button class="tool" id="sharetext">${I.send}Enviar como texto</button>
+      ${l.shared?`<button class="tool" id="refresh">${I.refresh}Actualizar</button>`:''}
+    </div>
+
+    ${l.shared?`<div class="share-note">${I.info}<span>Esta lista es visible y editable para cualquiera que abra esta app. Comparte el enlace de la app desde el botón de compartir de Claude para que otros la usen.</span></div>`:''}
+
+    <div class="add-row">
+      <input type="text" class="qty" id="iqty" placeholder="Cant." autocomplete="off" />
+      <input type="text" id="iname" placeholder="Añadir producto…" autocomplete="off" />
+      <button class="add-btn" id="iadd">${I.plus}</button>
+    </div>
+
+    <div class="items">${itemsHtml}</div>
+
+    <div class="list-foot">
+      <button class="clear-done" id="cleardone">Borrar comprados</button>
+      <button class="delete-list" id="dellist">${I.trash} Eliminar lista</button>
+    </div>`;
+
+  document.getElementById('back').onclick=()=>{ state.currentId=null; render(); };
+
+  const nameEl=document.getElementById('dname');
+  nameEl.onblur=()=>{ const v=nameEl.value.trim(); l.name=v||'Sin título'; if(!v) nameEl.value=l.name; persist(l); };
+  nameEl.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); nameEl.blur(); } };
+  document.getElementById('ddate').onchange=e=>{ l.date=e.target.value; persist(l); };
+
+  const nameInput=document.getElementById('iname'), qtyInput=document.getElementById('iqty');
+  const addItem=()=>{ const v=nameInput.value.trim(); if(!v) return;
+    l.items.push({id:uid(),name:v,qty:qtyInput.value.trim(),checked:false});
+    nameInput.value=''; qtyInput.value=''; persist(l); renderDetail(); document.getElementById('iname').focus(); };
+  document.getElementById('iadd').onclick=addItem;
+  nameInput.onkeydown=e=>{ if(e.key==='Enter') addItem(); };
+  qtyInput.onkeydown=e=>{ if(e.key==='Enter') document.getElementById('iname').focus(); };
+
+  app.querySelectorAll('[data-toggle]').forEach(b=> b.onclick=()=>{
+    const it=l.items.find(i=>i.id===b.dataset.toggle); it.checked=!it.checked; persist(l);
+    b.closest('.item').classList.toggle('done',it.checked);
+    document.getElementById('dsum').textContent=summaryText(l);
+  });
+  app.querySelectorAll('[data-del]').forEach(b=> b.onclick=()=>{ l.items=l.items.filter(i=>i.id!==b.dataset.del); persist(l); renderDetail(); });
+
+  document.getElementById('cleardone').onclick=()=>{ if(!l.items.some(i=>i.checked)) return; l.items=l.items.filter(i=>!i.checked); persist(l); renderDetail(); };
+  document.getElementById('dellist').onclick=async()=>{ if(confirm('¿Eliminar la lista "'+l.name+'"? No se puede deshacer.')){ await deleteList(l); state.currentId=null; render(); } };
+
+  document.getElementById('sharetoggle').onclick=async()=>{
+    if(!l.shared && !confirm('Al compartir esta lista será visible y editable por cualquiera que use esta app. ¿Continuar?')) return;
+    await setShared(l,!l.shared); renderDetail();
+  };
+  document.getElementById('sharetext').onclick=()=> openShareText(l);
+  const rf=document.getElementById('refresh'); if(rf) rf.onclick=async()=>{ await loadShared(); render(); };
+}
+
+/* ---------- Modal nueva lista ---------- */
+const overlay=document.getElementById('overlay');
+const mName=document.getElementById('m-name'), mDate=document.getElementById('m-date');
+const mSwitch=document.getElementById('m-switch'), mShareRow=document.getElementById('m-share-row');
+let modalShared=false;
+function setSwitch(on){ modalShared=on; mSwitch.classList.toggle('on',on); }
+mShareRow.onclick=()=> setSwitch(!modalShared);
+
+function openModal(){ mName.value=''; mDate.value=todayISO(); setSwitch(false); overlay.classList.add('open'); setTimeout(()=>mName.focus(),120); }
+function closeModal(){ overlay.classList.remove('open'); }
+document.getElementById('m-cancel').onclick=closeModal;
+overlay.onclick=e=>{ if(e.target===overlay) closeModal(); };
+document.getElementById('m-create').onclick=async()=>{
+  const list={ id:uid(), name:(mName.value.trim()||'Compra'), date:mDate.value||todayISO(), items:[], createdAt:Date.now(), shared:modalShared };
+  state.lists.push(list);
+  if(modalShared){ await saveSharedList(list); await saveSharedIndex(); } else { await savePersonal(); }
+  closeModal(); state.currentId=list.id; render();
+};
+mName.onkeydown=e=>{ if(e.key==='Enter') document.getElementById('m-create').click(); };
+
+/* ---------- Modal compartir como texto ---------- */
+const sOverlay=document.getElementById('share-overlay');
+const sText=document.getElementById('share-text'), copyOk=document.getElementById('copy-ok');
+function buildText(l){
+  let t='🧺 '+l.name+' — '+fmtDate(l.date)+'\n';
+  if(!l.items.length){ t+='(sin productos)'; return t; }
+  l.items.forEach(it=>{ t+= (it.checked?'✅ ':'⬜ ')+it.name+(it.qty?' ('+it.qty+')':'')+'\n'; });
+  return t.trim();
+}
+function openShareText(l){ sText.value=buildText(l); copyOk.textContent=''; sOverlay.classList.add('open'); }
+function closeShareText(){ sOverlay.classList.remove('open'); }
+document.getElementById('s-close').onclick=closeShareText;
+sOverlay.onclick=e=>{ if(e.target===sOverlay) closeShareText(); };
+document.getElementById('s-copy').onclick=async()=>{
+  const text=sText.value;
+  try{ await navigator.clipboard.writeText(text); copyOk.textContent='¡Copiado!'; }
+  catch(e){ sText.focus(); sText.select(); try{ document.execCommand('copy'); copyOk.textContent='¡Copiado!'; }catch(_){ copyOk.textContent='Selecciónalo y copia manualmente'; } }
+};
+
+document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeModal(); closeShareText(); } });
+
+/* ---------- Sincronización de listas compartidas ---------- */
+setInterval(async()=>{
+  if(document.hidden || isTyping() || overlay.classList.contains('open') || sOverlay.classList.contains('open')) return;
+  const before=JSON.stringify(state.lists.filter(l=>l.shared));
+  await loadShared();
+  const after=JSON.stringify(state.lists.filter(l=>l.shared));
+  if(before!==after){
+    if(state.currentId && !state.lists.find(l=>l.id===state.currentId)) state.currentId=null;
+    render();
+  }
+}, 8000);
+
+load();
+</script>
